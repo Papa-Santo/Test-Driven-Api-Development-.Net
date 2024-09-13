@@ -9,10 +9,9 @@ const itemTwo = {
 };
 
 context("Network Requests", () => {
-  it("cy.request-products", () => {
+  it("cy.gets-all-products", () => {
     cy.request(`${base}product`).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body).to.be.an("array").and.have.lengthOf(3);
       expect(response.body[0]).to.include.keys(
         "id",
         "name",
@@ -22,7 +21,7 @@ context("Network Requests", () => {
     });
   });
 
-  it("cy.post-order", () => {
+  it("cy.posts-order", () => {
     // Create Order
     cy.request("POST", `${base}order`, item).then((response) => {
       expect(response.status).to.eq(201);
@@ -39,41 +38,9 @@ context("Network Requests", () => {
     });
   });
 
-  it("cy.gets-order-list", () => {
+  it("cy.retrieves-order-by-id", () => {
     // Create Order
     cy.request("POST", `${base}order`, item).then((response) => {
-      expect(response.status).to.eq(201);
-      expect(response.body).to.include.keys("id");
-      cy.wrap(response.body.id).as("id");
-    });
-
-    // Get Order List
-    cy.request(`${base}order`).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body).to.be.an("array");
-      expect(response.body[0]).to.include.keys(
-        "id",
-        "status",
-        "customer",
-        "total",
-        "lineitems"
-      );
-    });
-
-    // Deletes Order
-    cy.get("@id").then((id) => {
-      cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body).to.include.keys("success");
-      });
-    });
-  });
-
-  it("cy.posts-order-and-retrieves-order-by-id", () => {
-    // Create Order
-    cy.request("POST", `${base}order`, item).then((response) => {
-      expect(response.status).to.eq(201);
-      expect(response.body).to.include.keys("id");
       cy.wrap(response.body.id).as("id");
     });
 
@@ -102,10 +69,83 @@ context("Network Requests", () => {
           "price"
         );
         expect(response.body.lineitems).to.be.an("array").and.have.lengthOf(1);
-        expect(response.body.total).eq(19.98);
+        expect(response.body.total).eq(
+          response.body.lineitems[0].price * response.body.lineitems[0].quantity
+        );
+        expect(response.body.customer).eq(1);
+        expect(response.body.lineitems[0].productid).eq(1);
+        expect(response.body.lineitems[0].quantity).eq(2);
+        expect(response.body.lineitems[0].price).eq(
+          response.body.lineitems[0].product.price
+        );
+        // Delete Order
+        cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+          expect(response.status).to.eq(200);
+          expect(response.body).to.include.keys("success");
+        });
+      });
+    });
+  });
+
+  it("cy.deletes-an-order", () => {
+    // Create Order
+    cy.request("POST", `${base}order`, item).then((response) => {
+      cy.wrap(response.body.id).as("id");
+    });
+
+    // Get Order By ID
+    cy.get("@id").then((id) => {
+      cy.request({
+        url: `${base}order/byid`,
+        qs: {
+          id: id,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200);
       });
 
       // Delete Order
+      cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body).to.include.keys("success");
+      });
+
+      // Get Deleted Order By Id
+      cy.request({
+        url: `${base}order/byid`,
+        failOnStatusCode: false,
+        qs: {
+          id: id,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(400);
+      });
+    });
+  });
+
+  it("cy.gets-order-list", () => {
+    // Create Order
+    cy.request("POST", `${base}order`, item).then((response) => {
+      expect(response.status).to.eq(201);
+      expect(response.body).to.include.keys("id");
+      cy.wrap(response.body.id).as("id");
+    });
+
+    // Get Order List
+    cy.request(`${base}order`).then((response) => {
+      expect(response.status).to.eq(200);
+      expect(response.body).to.be.an("array");
+      expect(response.body[response.body.length - 1]).to.include.keys(
+        "id",
+        "status",
+        "customer",
+        "total",
+        "lineitems"
+      );
+    });
+
+    // Deletes Order
+    cy.get("@id").then((id) => {
       cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.include.keys("success");

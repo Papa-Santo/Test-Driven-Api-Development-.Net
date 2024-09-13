@@ -63,7 +63,7 @@ namespace CartAPI.Controllers
             {
                 return BadRequest(new { message = "This product could not be found" });
             }
-            OrderHeader? orderHead = new OrderHeader { total = product.price * lineItem.quantity, customer = lineItem.userid };
+            OrderHeader orderHead = new OrderHeader { total = product.price * lineItem.quantity, customer = lineItem.userid };
             _context.orderheader.Add(orderHead);
             await _context.SaveChangesAsync();
 

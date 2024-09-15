@@ -31,7 +31,7 @@ context("Network Requests", () => {
 
     // Delete Order
     cy.get("@id").then((id) => {
-      cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+      cy.request("DELETE", `${base}order?id=${id}`).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.include.keys("success");
       });
@@ -79,7 +79,7 @@ context("Network Requests", () => {
           response.body.lineitems[0].product.price
         );
         // Delete Order
-        cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+        cy.request("DELETE", `${base}order?id=${id}`).then((response) => {
           expect(response.status).to.eq(200);
           expect(response.body).to.include.keys("success");
         });
@@ -105,7 +105,7 @@ context("Network Requests", () => {
       });
 
       // Delete Order
-      cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+      cy.request("DELETE", `${base}order?id=${id}`).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.include.keys("success");
       });
@@ -146,7 +146,7 @@ context("Network Requests", () => {
 
     // Deletes Order
     cy.get("@id").then((id) => {
-      cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+      cy.request("DELETE", `${base}order?id=${id}`).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.include.keys("success");
       });
@@ -183,7 +183,7 @@ context("Network Requests", () => {
         expect(response.body.total).eq(31.95);
 
         // Delete Order
-        cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+        cy.request("DELETE", `${base}order?id=${id}`).then((response) => {
           expect(response.status).to.eq(200);
           expect(response.body).to.include.keys("success");
         });
@@ -219,7 +219,7 @@ context("Network Requests", () => {
       });
 
       // Delete Order
-      cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+      cy.request("DELETE", `${base}order?id=${id}`).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.include.keys("success");
       });
@@ -302,7 +302,7 @@ context("Network Requests", () => {
         }).then((response) => {
           expect(response.status).to.eq(200);
           expect(response.body.status).to.eq(1);
-          cy.wrap(response.body.lineitems[0].id).as("item");
+          cy.wrap(response.body.lineitems[0].id).as("lineitem");
         });
 
         // Check order cannot be updated by item
@@ -320,11 +320,11 @@ context("Network Requests", () => {
         });
       });
 
-      cy.get("@item").then((item) => {
+      cy.get("@lineitem").then((lineitem) => {
         // Check order cannot be updated by delete item
         cy.request({
           method: "Delete",
-          url: `${base}order/lineitem?id=${item}`,
+          url: `${base}order/lineitem?id=${lineitem}`,
           failOnStatusCode: false,
         }).then((response) => {
           expect(response.status).to.eq(400);
@@ -335,7 +335,7 @@ context("Network Requests", () => {
       });
       // Delete Order
       cy.get("@id").then((id) => {
-        cy.request("DELETE", `${base}order?id=${id}`, item).then((response) => {
+        cy.request("DELETE", `${base}order?id=${id}`).then((response) => {
           expect(response.status).to.eq(200);
           expect(response.body).to.include.keys("success");
         });
